@@ -1,0 +1,46 @@
+FROM amazon/aws-lambda-python:3.12
+# Install chrome dependencies
+RUN dnf install -y atk cups-libs gtk3 libXcomposite alsa-lib \
+    libXcursor libXdamage libXext libXi libXrandr libXScrnSaver \
+    libXtst pango at-spi2-atk libXt xorg-x11-server-Xvfb \
+    xorg-x11-xauth dbus-glib dbus-glib-devel nss mesa-libgbm jq unzip
+
+
+# Create the target directory for Chrome
+RUN mkdir -p /opt/google/chrome
+
+# Download Chrome ZIP and extract
+RUN curl -o /tmp/chrome.zip "https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.94/linux64/chrome-linux64.zip" && \
+    unzip /tmp/chrome.zip -d /opt/google/chrome && \
+    rm /tmp/chrome.zip
+
+# Make the Chrome binary executable
+RUN chmod +x /opt/google/chrome/chrome-linux64/chrome
+
+# Install Chromedriver Might need version 136.0.7103.113
+RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
+    curl -o /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.94/linux64/chromedriver-linux64.zip && \
+    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
+    rm /tmp/chromedriver.zip && \
+    chmod +x /usr/local/bin/chromedriver-linux64/chromedriver
+
+# Install selenium
+RUN pip install selenium
+RUN pip install requests
+
+# Set environment variables
+ENV CHROME_BIN=/opt/google/chrome/chrome-linux64/chrome \
+    CHROMEDRIVER_PATH=/usr/local/bin/chromedriver-linux64/chromedriver \
+    DISPLAY=:99
+
+# Copy the main application code
+COPY main.py ./
+# Command to run the Lambda function
+CMD [ "main.lambda_handler" ]
+
+# Set unique user data directory
+ENV USER_DATA_DIR=/tmp/chrome-user-data
+
+# Ensure directory exists
+RUN mkdir -p $USER_DATA_DIR
+
