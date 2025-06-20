@@ -21,11 +21,11 @@ This project builds a full data pipeline that scrapes gameplay data from multipl
 
 ## 📂 Project Structure
 
-game_pipeline/
-├── hltb_api_scrape/ # Web scraping scripts for HowLongToBeat
-├── selenium-lambda-docker/ # Dockerized Lambda setup for deployment
-├── README.md
-├── LICENSE
+game_pipeline/ <br>
+├── hltb_api_scrape/ # Web scraping scripts for HowLongToBeat <br>
+├── selenium-lambda-docker/ # Dockerized Lambda setup for deployment <br>
+├── README.md <br>
+├── LICENSE <br>
 └── .gitignore
 
 
